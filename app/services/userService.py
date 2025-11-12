@@ -79,3 +79,12 @@ class UserService:
             "SELECT * FROM users WHERE available = 1 AND access_level >= ? ORDER BY id",
             (2,)
         )
+    
+    @staticmethod
+    async def update_user_id_by_name(name: str, user_id: int) -> bool:
+        """Обновить user_id для пользователя по имени (PRIMARY KEY)"""
+        result = await UserService.db.execute(
+            "UPDATE users SET id = ? WHERE name = ?",
+            (user_id, name)
+        )
+        return result > 0
