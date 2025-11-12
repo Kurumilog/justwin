@@ -3,16 +3,16 @@ from typing import List, Dict, Optional
 from app.db import Database
 
 class UserService:
-    def __init__(self, db: Database):
-        self.db = db
+    db = Database()
     
     def get_user_access_level(self, user_id: str) -> int:
         body = self.db.get_by_id("users", user_id)
         if body is not None:
             return body[id]
         
-    def check_user_exist(self, user_id: str) -> bool:
-        id = self.db.get_by_id("users", user_id)
+    @staticmethod
+    def check_user_exist(user_id: str) -> bool:
+        id = UserService.db.get_by_id("users", user_id)
         if id is not None:
             return True
         else:
