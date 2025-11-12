@@ -29,3 +29,6 @@ Thumbs.db
 # Logs and temporary files
 *.log
 *.tmp
+
+db_controller.py
+requester.py
