@@ -1,33 +1,34 @@
 from app.db import Database
+from app.models.form import Form
 from typing import List
 
 class FormService:
     db = Database()
     
-    @staticmethod
-    async def initialize():
+    @classmethod
+    async def initialize(cls):
         await FormService.db.initialize()
     
-    @staticmethod
-    async def create_form(name: str, _tasks: List[int], addition: str) -> dict:
-        string_tasks = ""
-        for task in _tasks:
-            string_tasks += str(task) + ", "
-        string_tasks = string_tasks[:-2]
-        return await FormService.db.add('forms', name=name, tasks=string_tasks, addition=addition)
+    @classmethod
+    async def create_form(cls, name: str, tasks: List[int], addition: str) -> dict:
+        _tasks = Form.get_tasks_string(tasks)
+        return await FormService.db.add('forms', name=name, tasks=_tasks, addition=addition)
     
-    @staticmethod
-    async def get_all_tasks():
-        return await FormService.db.get_all('tasks')
+    @classmethod
+    async def get_all_forms(cls) -> List[Form]:
+        data = await FormService.db.get_all('forms')
+        forms = []
+        for form_data in data:
+            form = Form.from_dict(form_data)
+            forms.append(form)
     
-    @staticmethod
-    async def get_task_by_id(task_id: str):
-        return await FormService.db.get_by_id('tasks', int(task_id))
+        return forms
     
-    @staticmethod
-    async def update_task(task_id: str, info: str) -> bool:
-        return await FormService.db.update('tasks', int(task_id), info=info)
+    @classmethod
+    async def get_form_by_id(cls, task_id: int) -> Form:
+        form_dict = await FormService.db.get_by_id('forms', task_id)
+        return Form.from_dict(form_dict) 
     
-    @staticmethod
-    async def delete_task(task_id: str) -> bool:
-        return await FormService.db.delete('tasks', int(task_id))
+    @classmethod
+    async def delete_form(cls, task_id: int) -> bool:
+        return await FormService.db.delete('forms', task_id)
