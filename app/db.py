@@ -15,7 +15,7 @@ class Database:
         async with aiosqlite.connect(self.db_name) as conn:
             await conn.execute('''
                 CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER,
+                    id TEXT,
                     name TEXT PRIMARY KEY,
                     access_level INTEGER NOT NULL,
                     available BOOL NOT NULL

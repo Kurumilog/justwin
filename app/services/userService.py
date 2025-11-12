@@ -43,7 +43,7 @@ class UserService:
     @staticmethod
     async def get_user_by_id(user_id: str) -> Optional[Dict]:
         """Получить пользователя по ID"""
-        return await UserService.db.get_by_id("users", int(user_id))
+        return await UserService.db.get_by_id("users", user_id)
     
     @staticmethod
     async def add_sample_users() -> List[Dict]:
@@ -58,7 +58,7 @@ class UserService:
         for user_data in users_data:
             user_id = await UserService.create_user(**user_data)
             # Получаем созданного пользователя чтобы вернуть полные данные
-            user = await UserService.get_user_by_id(str(user_id))
+            user = await UserService.get_user_by_id(user_id)
             if user:
                 users.append(user)
         
@@ -81,7 +81,7 @@ class UserService:
         )
     
     @staticmethod
-    async def update_user_id_by_name(name: str, user_id: int) -> bool:
+    async def update_user_id_by_name(name: str, user_id: str) -> bool:
         """Обновить user_id для пользователя по имени (PRIMARY KEY)"""
         result = await UserService.db.execute(
             "UPDATE users SET id = ? WHERE name = ?",
