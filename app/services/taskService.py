@@ -24,5 +24,5 @@ class TaskService:
         return await TaskService.db.update('tasks', task_id, info=info)
     
     @classmethod
-    async def delete_task(cls, task_id: str) -> bool:
-        return await TaskService.db.delete('tasks', int(task_id))
+    async def delete_task(cls, task_id: int) -> bool:
+        return await TaskService.db.delete('tasks', task_id)
