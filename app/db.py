@@ -17,7 +17,7 @@ class Database:
                 CREATE TABLE IF NOT EXISTS users (
                     id TEXT,
                     name TEXT PRIMARY KEY,
-                    access_level INTEGER NOT NULL,
+                    access_level TEXT NOT NULL CHECK(access_level IN ('admin', 'manager', 'office_worker', 'leader', 'worker')),
                     available BOOL NOT NULL
                 )
             ''')

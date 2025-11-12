@@ -6,6 +6,27 @@ class UserService:
     db = Database()
     initialized = False
     
+    # Константы уровней доступа
+    ACCESS_LEVEL_ADMIN = 'admin'
+    ACCESS_LEVEL_MANAGER = 'manager'
+    ACCESS_LEVEL_OFFICE_WORKER = 'office_worker'
+    ACCESS_LEVEL_LEADER = 'leader'
+    ACCESS_LEVEL_WORKER = 'worker'
+    
+    # Перевод уровней доступа на русский
+    ACCESS_LEVEL_NAMES = {
+        'admin': 'Администратор',
+        'manager': 'Менеджер',
+        'office_worker': 'Офисный работник',
+        'leader': 'Руководитель',
+        'worker': 'Работник'
+    }
+    
+    @staticmethod
+    def get_access_level_name(access_level: str) -> str:
+        """Получить русское название уровня доступа"""
+        return UserService.ACCESS_LEVEL_NAMES.get(access_level, access_level)
+    
     @staticmethod
     async def initialize():
         """Инициализировать базу данных"""
@@ -14,12 +35,28 @@ class UserService:
             UserService.initialized = True
     
     @staticmethod
-    async def create_user(name: str, access_level: int, available: bool = True) -> int:
-        """Создать нового пользователя"""
+    async def create_user(name: str, access_level: str, available: bool = True) -> int:
+        """Создать нового пользователя
+        
+        Args:
+            name: ФИО пользователя
+            access_level: уровень доступа ('admin', 'manager', 'office_worker', 'leader', 'worker')
+            available: доступность пользователя
+        """
+        valid_levels = [
+            UserService.ACCESS_LEVEL_ADMIN,
+            UserService.ACCESS_LEVEL_MANAGER,
+            UserService.ACCESS_LEVEL_OFFICE_WORKER,
+            UserService.ACCESS_LEVEL_LEADER,
+            UserService.ACCESS_LEVEL_WORKER
+        ]
+        if access_level not in valid_levels:
+            raise ValueError(f"Неверный уровень доступа. Допустимые значения: {', '.join(valid_levels)}")
+        
         return await UserService.db.add('users', name=name, access_level=access_level, available=available)
     
     @staticmethod
-    async def get_user_access_level(user_id: str) -> Optional[int]:
+    async def get_user_access_level(user_id: str) -> Optional[str]:
         """Получить уровень доступа пользователя"""
         body = await UserService.db.get_by_id("users", int(user_id))
         if body is not None:
@@ -49,9 +86,9 @@ class UserService:
     async def add_sample_users() -> List[Dict]:
         """Добавить тестовых пользователей"""
         users_data = [
-            {"name": "Даник", "access_level": 1, "available": True},
-            {"name": "Миша", "access_level": 2, "available": True},
-            {"name": "Илья", "access_level": 3, "available": True},
+            {"name": "Даник", "access_level": UserService.ACCESS_LEVEL_MANAGER, "available": True},
+            {"name": "Миша", "access_level": UserService.ACCESS_LEVEL_OFFICE_WORKER, "available": True},
+            {"name": "Илья", "access_level": UserService.ACCESS_LEVEL_LEADER, "available": True},
         ]
         
         users = []
@@ -74,10 +111,17 @@ class UserService:
     
     @staticmethod
     async def get_available_reviewers() -> List[Dict]:
-        """Получить доступных проверяющих"""
+        """Получить доступных проверяющих (office_worker и выше)"""
+        # Проверяющими могут быть office_worker, manager и admin
+        allowed_levels = (
+            UserService.ACCESS_LEVEL_ADMIN,
+            UserService.ACCESS_LEVEL_MANAGER,
+            UserService.ACCESS_LEVEL_OFFICE_WORKER
+        )
+        placeholders = ','.join(['?' for _ in allowed_levels])
         return await UserService.db.query(
-            "SELECT * FROM users WHERE available = 1 AND access_level >= ? ORDER BY id",
-            (2,)
+            f"SELECT * FROM users WHERE available = 1 AND access_level IN ({placeholders}) ORDER BY id",
+            allowed_levels
         )
     
     @staticmethod

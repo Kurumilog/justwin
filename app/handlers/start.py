@@ -1,5 +1,5 @@
-from aiogram import Router
-from aiogram.filters import Command, CommandStart
+from aiogram import Router, F
+from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
@@ -22,6 +22,18 @@ async def send_welcome(message: Message) -> None:
         await message.answer("Пожалуйста, зарегистрируйтесь, чтобы использовать бота. Для этого используйте команду /register.")
 
 
+@router.message(Command("cancel"))
+async def cancel_registration(message: Message, state: FSMContext) -> None:
+    """Отмена процесса регистрации"""
+    current_state = await state.get_state()
+    if current_state is None:
+        await message.answer("Нет активного процесса для отмены.")
+        return
+    
+    await state.clear()
+    await message.answer("❌ Регистрация отменена. Используйте /register для повторной попытки.")
+
+
 @router.message(Command("register"))
 async def register_user(message: Message, state: FSMContext) -> None:
     # Инициализируем базу данных если еще не инициализирована
@@ -35,7 +47,7 @@ async def register_user(message: Message, state: FSMContext) -> None:
         await message.answer("Введите ваше ФИО (точно как оно указано в базе данных):")
 
 
-@router.message(RegistrationStates.waiting_for_fio)
+@router.message(RegistrationStates.waiting_for_fio, F.text)
 async def process_fio(message: Message, state: FSMContext) -> None:
     """Обработка введенного ФИО пользователя"""
     fio = message.text.strip()
@@ -66,10 +78,14 @@ async def process_fio(message: Message, state: FSMContext) -> None:
     success = await UserService.update_user_id_by_name(fio, user_id)
     
     if success:
+        # Получаем читаемое название роли
+        access_level = user.get('access_level', '')
+        access_level_name = UserService.get_access_level_name(access_level)
+        
         await message.answer(
             f"✅ Регистрация успешно завершена!\n"
             f"Ваше ФИО: {fio}\n"
-            f"Уровень доступа: {user.get('access_level', 'не указан')}\n\n"
+            f"Уровень доступа: {access_level_name}\n\n"
             f"Теперь вы можете использовать все функции бота."
         )
     else:
@@ -79,16 +95,3 @@ async def process_fio(message: Message, state: FSMContext) -> None:
     
     # Очищаем состояние FSM
     await state.clear()
-
-
-@router.message(Command("cancel"))
-async def cancel_registration(message: Message, state: FSMContext) -> None:
-    """Отмена процесса регистрации"""
-    current_state = await state.get_state()
-    if current_state is None:
-        await message.answer("Нет активного процесса для отмены.")
-        return
-    
-    await state.clear()
-    await message.answer("❌ Регистрация отменена. Используйте /register для повторной попытки.")
-        
