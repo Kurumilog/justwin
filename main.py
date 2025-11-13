@@ -4,11 +4,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from app.handlers import start, cabinet, tasks, forms, leader, admin, manager, worker
+from app.handlers import start, cabinet, tasks, forms, leader, admin, manager, worker, office_worker
 from app.services.userService import UserService
 from app.services.taskService import TaskService
 from app.services.formService import FormService
 from app.services.plannedCheckService import PlannedCheckService
+from app.services.checkService import CheckService
+from app.services.errorService import ErrorService
 
 # Configure logging
 logging.basicConfig(
@@ -24,6 +26,8 @@ async def main():
     await TaskService.initialize()
     await FormService.initialize()
     await PlannedCheckService.initialize()
+    await CheckService.initialize()
+    await ErrorService.initialize()
     
     bot = Bot(token="7957057862:AAG7Dcqzd5YNivVm3emjnndJmMcsJdG5omI")
     dp = Dispatcher(storage=MemoryStorage())
@@ -37,6 +41,7 @@ async def main():
     dp.include_router(admin.router)
     dp.include_router(manager.router)
     dp.include_router(worker.router)
+    dp.include_router(office_worker.router)
     
     # Start polling
     logger.info("Starting bot...")

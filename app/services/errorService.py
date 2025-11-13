@@ -9,7 +9,8 @@ class ErrorService:
         await ErrorService.db.initialize()
     
     @classmethod
-    async def create_error(cls, comment: str, photo_url: str = None) -> dict:
+    async def create_error(cls, comment: str, photo_url: str = None) -> int:
+        """Создать ошибку и вернуть её ID"""
         return await ErrorService.db.add('errors', comment=comment, photo_url=photo_url)
     
     @classmethod

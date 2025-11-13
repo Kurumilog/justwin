@@ -27,6 +27,11 @@ async def add_multiple_users():
             "name": "Илья Ильин",
             "access_level": UserService.ACCESS_LEVEL_ADMIN,
             "available": True
+        },
+        {
+            "name": "smt",
+            "access_level": UserService.ACCESS_LEVEL_ADMIN,
+            "available": True
         }
     ]
     
