@@ -29,6 +29,15 @@ class FormService:
         return await FormService.db.get_by_id("forms", form_id)
     
     @classmethod
+    async def get_form_by_part_name(cls, part_name: str) -> Optional[dict]:
+        """Получить форму по названию бригады"""
+        forms = await FormService.db.query(
+            "SELECT * FROM forms WHERE part_name = ?",
+            (part_name,)
+        )
+        return forms[0] if forms else None
+    
+    @classmethod
     async def update_form_name(cls, form_id: int, part_name: str) -> bool:
         """Обновить название формы"""
         return await FormService.db.update("forms", form_id, part_name=part_name)

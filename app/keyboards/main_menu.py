@@ -43,8 +43,11 @@ def get_main_menu_keyboard(access_level: str) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="📋 Информация", callback_data="info")
         )
     
-    # Кнопки для WORKER
+    # Кнопки для WORKER - личный кабинет работника
     if access_level == UserService.ACCESS_LEVEL_WORKER:
+        builder.row(
+            InlineKeyboardButton(text="👷 Личный кабинет", callback_data="worker_cabinet")
+        )
         builder.row(
             InlineKeyboardButton(text="📋 Информация", callback_data="info")
         )

@@ -37,17 +37,13 @@ class CheckService:
         return await CheckService.db.delete('checks', check_id)
     
     @classmethod
-    async def get_checks_by_form(cls, form_id: int) -> List[Check]:
+    async def get_checks_by_form(cls, form_id: int) -> List[dict]:
         """Получить все проверки для конкретной формы (бригады)"""
         data = await CheckService.db.query(
             "SELECT * FROM checks WHERE form_id = ? ORDER BY checked_at DESC",
             (form_id,)
         )
-        checks = []
-        for check_data in data:
-            check = Check.from_dict(check_data)
-            checks.append(check)
-        return checks
+        return data
     
     @classmethod
     async def get_errors_by_form(cls, form_id: int) -> List[dict]:
