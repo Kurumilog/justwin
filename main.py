@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from app.handlers import start, cabinet, tasks
+from app.handlers import start, cabinet, tasks, forms
 from app.services.userService import UserService
 from app.services.taskService import TaskService
 from app.services.formService import FormService
@@ -30,6 +30,7 @@ async def main():
     dp.include_router(start.router)
     dp.include_router(cabinet.router)
     dp.include_router(tasks.router)
+    dp.include_router(forms.router)
     
     # Start polling
     logger.info("Starting bot...")
