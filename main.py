@@ -4,22 +4,32 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from app.handlers import start
+from app.handlers import start, cabinet, tasks
+from app.services.userService import UserService
+from app.services.taskService import TaskService
+from app.services.formService import FormService
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)sa - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 
 async def main():
+    # Инициализация сервисов
+    await UserService.initialize()
+    await TaskService.initialize()
+    await FormService.initialize()
+    
     bot = Bot(token="7957057862:AAG7Dcqzd5YNivVm3emjnndJmMcsJdG5omI")
     dp = Dispatcher(storage=MemoryStorage())
     
     # Register handlers
     dp.include_router(start.router)
+    dp.include_router(cabinet.router)
+    dp.include_router(tasks.router)
     
     # Start polling
     logger.info("Starting bot...")

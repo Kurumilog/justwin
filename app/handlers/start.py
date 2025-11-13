@@ -1,10 +1,11 @@
 from aiogram import Router, F
-from aiogram.filters import Command, CommandStart, StateFilter
-from aiogram.types import Message
+from aiogram.filters import Command, CommandStart
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from app.services.userService import UserService
 from app.states.registration import RegistrationStates
+from app.keyboards import get_main_menu_keyboard
 
 router = Router()
 
@@ -16,10 +17,47 @@ async def send_welcome(message: Message) -> None:
     
     await message.answer("Приветствую! Я бот по контролю производственных процессов на предприятии.")
     user_id = message.from_user.id
+    
     if await UserService.check_user_exist(str(user_id)):
-        await message.answer("Добро пожаловать! Используйте доступные команды для работы с ботом.")
+        # Получаем уровень доступа пользователя
+        access_level = await UserService.get_user_access_level(str(user_id))
+        await message.answer(
+            "Добро пожаловать! Выберите действие:",
+            reply_markup=get_main_menu_keyboard(access_level)
+        )
     else:
         await message.answer("Пожалуйста, зарегистрируйтесь, чтобы использовать бота. Для этого используйте команду /register.")
+
+
+@router.message(Command("menu"))
+async def show_menu(message: Message) -> None:
+    """Показать главное меню"""
+    await UserService.initialize()
+    user_id = message.from_user.id
+    
+    if await UserService.check_user_exist(str(user_id)):
+        access_level = await UserService.get_user_access_level(str(user_id))
+        await message.answer(
+            "📋 Главное меню:",
+            reply_markup=get_main_menu_keyboard(access_level)
+        )
+    else:
+        await message.answer("Вы не зарегистрированы. Используйте /register")
+
+
+@router.callback_query(F.data == "main_menu")
+async def callback_main_menu(callback: CallbackQuery) -> None:
+    """Обработчик возврата в главное меню"""
+    await UserService.initialize()
+    user_id = callback.from_user.id
+    
+    if await UserService.check_user_exist(str(user_id)):
+        access_level = await UserService.get_user_access_level(str(user_id))
+        await callback.message.edit_text(
+            "📋 Главное меню:",
+            reply_markup=get_main_menu_keyboard(access_level)
+        )
+    await callback.answer()
 
 
 @router.message(Command("cancel"))
@@ -75,7 +113,7 @@ async def process_fio(message: Message, state: FSMContext) -> None:
         return
     
     # Привязываем user_id к найденному ФИО
-    success = await UserService.update_user_id_by_name(fio, user_id)
+    success = await UserService.update_user_id_by_name(fio, str(user_id))
     
     if success:
         # Получаем читаемое название роли
@@ -87,6 +125,12 @@ async def process_fio(message: Message, state: FSMContext) -> None:
             f"Ваше ФИО: {fio}\n"
             f"Уровень доступа: {access_level_name}\n\n"
             f"Теперь вы можете использовать все функции бота."
+        )
+        
+        # Показываем главное меню
+        await message.answer(
+            "📋 Главное меню:",
+            reply_markup=get_main_menu_keyboard(access_level)
         )
     else:
         await message.answer(
