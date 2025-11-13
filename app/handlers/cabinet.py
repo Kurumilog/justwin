@@ -62,7 +62,7 @@ async def show_reports(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == "manage_users")
 async def show_manage_users(callback: CallbackQuery) -> None:
-    """Управление пользователями (только для ADMIN)"""
+    """Управление пользователями (только для ADMIN) - переадресация"""
     user_id = callback.from_user.id
     access_level = await UserService.get_user_access_level(str(user_id))
     
@@ -70,16 +70,17 @@ async def show_manage_users(callback: CallbackQuery) -> None:
         await callback.answer("❌ Доступно только администраторам", show_alert=True)
         return
     
-    # TODO: Реализовать управление пользователями
+    # Переадресуем на обработчик из admin.py
+    from app.keyboards.admin_keyboards import get_admin_users_management_keyboard
+    
     await callback.message.edit_text(
         "👥 <b>Управление пользователями</b>\n\n"
-        "🚧 Раздел находится в разработке\n\n"
-        "Здесь будет:\n"
-        "• Добавление пользователей\n"
-        "• Изменение уровней доступа\n"
-        "• Блокировка/разблокировка\n"
-        "• Просмотр активности",
-        reply_markup=get_admin_cabinet_keyboard(access_level),
+        "Здесь вы можете:\n"
+        "• Создавать новых пользователей\n"
+        "• Изменять уровни доступа\n"
+        "• Назначать пользователей в бригады\n"
+        "• Удалять пользователей",
+        reply_markup=get_admin_users_management_keyboard(),
         parse_mode="HTML"
     )
     await callback.answer()

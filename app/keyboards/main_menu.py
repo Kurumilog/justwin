@@ -31,11 +31,20 @@ def get_main_menu_keyboard(access_level: str) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="✅ Провести проверку", callback_data="conduct_check")
         )
         builder.row(
-            InlineKeyboardButton(text="� Мои проверки", callback_data="my_checks")
+            InlineKeyboardButton(text="📋 Мои проверки", callback_data="my_checks")
         )
     
-    # Кнопки для LEADER и WORKER
-    if access_level in [UserService.ACCESS_LEVEL_LEADER, UserService.ACCESS_LEVEL_WORKER]:
+    # Кнопки для LEADER - личный кабинет руководителя
+    if access_level == UserService.ACCESS_LEVEL_LEADER:
+        builder.row(
+            InlineKeyboardButton(text="👔 Личный кабинет", callback_data="leader_cabinet")
+        )
+        builder.row(
+            InlineKeyboardButton(text="📋 Информация", callback_data="info")
+        )
+    
+    # Кнопки для WORKER
+    if access_level == UserService.ACCESS_LEVEL_WORKER:
         builder.row(
             InlineKeyboardButton(text="📋 Информация", callback_data="info")
         )
@@ -67,6 +76,12 @@ def get_admin_cabinet_keyboard(access_level: str) -> InlineKeyboardMarkup:
     builder.row(
         InlineKeyboardButton(text="📄 Управление формами", callback_data="manage_forms")
     )
+    
+    # Планирование проверок (только для MANAGER)
+    if access_level == UserService.ACCESS_LEVEL_MANAGER:
+        builder.row(
+            InlineKeyboardButton(text="📅 Планирование проверок", callback_data="manager_plan_checks")
+        )
     
     # Управление пользователями (только для ADMIN)
     if access_level == UserService.ACCESS_LEVEL_ADMIN:

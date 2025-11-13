@@ -140,3 +140,78 @@ class UserService:
             (part_name, user_id)
         )
         return result > 0
+    
+    @classmethod
+    async def update_user_part_name_by_name(cls, name: str, part_name: str) -> bool:
+        """Обновить бригаду пользователя по имени (PRIMARY KEY)"""
+        result = await UserService.db.execute(
+            "UPDATE users SET part_name = ? WHERE name = ?",
+            (part_name, name)
+        )
+        return result > 0
+    
+    @classmethod
+    async def get_workers_by_part_name(cls, part_name: str) -> List[Dict]:
+        """Получить всех работников (WORKER) конкретной бригады"""
+        return await UserService.db.query(
+            "SELECT * FROM users WHERE part_name = ? AND access_level = ? ORDER BY name",
+            (part_name, UserService.ACCESS_LEVEL_WORKER)
+        )
+    
+    @classmethod
+    async def get_leaders(cls) -> List[Dict]:
+        """Получить всех руководителей бригад"""
+        return await UserService.db.query(
+            "SELECT * FROM users WHERE access_level = ? ORDER BY name",
+            (UserService.ACCESS_LEVEL_LEADER,)
+        )
+    
+    @classmethod
+    async def get_leader_by_part_name(cls, part_name: str) -> Optional[Dict]:
+        """Получить руководителя конкретной бригады"""
+        result = await UserService.db.query(
+            "SELECT * FROM users WHERE part_name = ? AND access_level = ? LIMIT 1",
+            (part_name, UserService.ACCESS_LEVEL_LEADER)
+        )
+        return result[0] if result else None
+    
+    @classmethod
+    async def get_all_users(cls) -> List[Dict]:
+        """Получить всех пользователей"""
+        return await UserService.db.get_all("users")
+    
+    @classmethod
+    async def update_user_access_level(cls, name: str, access_level: str) -> bool:
+        """Обновить уровень доступа пользователя по имени (PRIMARY KEY)"""
+        valid_levels = [
+            UserService.ACCESS_LEVEL_ADMIN,
+            UserService.ACCESS_LEVEL_MANAGER,
+            UserService.ACCESS_LEVEL_OFFICE_WORKER,
+            UserService.ACCESS_LEVEL_LEADER,
+            UserService.ACCESS_LEVEL_WORKER
+        ]
+        if access_level not in valid_levels:
+            raise ValueError(f"Неверный уровень доступа")
+        
+        result = await UserService.db.execute(
+            "UPDATE users SET access_level = ? WHERE name = ?",
+            (access_level, name)
+        )
+        return result > 0
+    
+    @classmethod
+    async def assign_worker_to_brigade(cls, worker_name: str, part_name: str) -> bool:
+        """Назначить работника в бригаду"""
+        result = await UserService.db.execute(
+            "UPDATE users SET part_name = ? WHERE name = ? AND access_level = ?",
+            (part_name, worker_name, UserService.ACCESS_LEVEL_WORKER)
+        )
+        return result > 0
+    
+    @classmethod
+    async def get_office_workers(cls) -> List[Dict]:
+        """Получить всех офисных работников"""
+        return await UserService.db.query(
+            "SELECT * FROM users WHERE access_level = ? ORDER BY name",
+            (UserService.ACCESS_LEVEL_OFFICE_WORKER,)
+        )
