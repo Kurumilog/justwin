@@ -4,11 +4,11 @@ class Form:
     """Простой DTO класс для формы"""
     
     def __init__(self, 
-                 name: str = "",
+                 part_name: str = "",
                  tasks: List[int] = None,
                  id: int = None):
         self.id = id
-        self.name = name
+        self.part_name = part_name
         self.tasks = tasks
 
     @staticmethod
@@ -22,13 +22,18 @@ class Form:
     @classmethod
     def from_dict(cls, data: dict) -> 'Form':
         """Создать из словаря"""
-        tasks = []
-        for letter in data.get('tasks'):
-            if letter not in [' ', ',']:
-                tasks.append(int(letter))
+        
+        def parse_tasks_string(s: str) -> list[int]:
+            if not s:
+                return []
+            return [int(x.strip()) for x in s.split(',') if x.strip().isdigit()]
+        
+        tasks_str = data.get('tasks', '')
+        tasks = parse_tasks_string(tasks_str)
+        
         return cls(
             id=data.get('id'),
-            name=data.get('name', ''),
-            tasks=tasks, 
+            part_name=data.get('part_name', ''),
+            tasks=tasks,
         )
             
