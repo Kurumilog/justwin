@@ -1,4 +1,3 @@
-# dto/form_dto.py
 from typing import List, Optional
 
 class Form:

@@ -25,14 +25,14 @@ class Database:
             await conn.execute('''
                 CREATE TABLE IF NOT EXISTS tasks (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    info TEXT NOT NULL
+                    info TEXT UNIQUE NOT NULL
                 )
             ''')
 
             await conn.execute('''
                 CREATE TABLE IF NOT EXISTS forms (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
+                    name TEXT UNIQUE NOT NULL,
                     tasks TEXT NOT NULL,
                     addition TEXT
                 )
@@ -68,18 +68,6 @@ class Database:
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (form_id) REFERENCES forms(id) ON DELETE CASCADE,
                     FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE CASCADE
-                )
-            ''')
-
-            await conn.execute('''
-                CREATE TABLE IF NOT EXISTS form_tasks (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    form_id INTEGER NOT NULL,
-                    task_id INTEGER NOT NULL,
-                    task_order INTEGER NOT NULL,
-                    FOREIGN KEY (form_id) REFERENCES forms(id) ON DELETE CASCADE,
-                    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
-                    UNIQUE(form_id, task_id)
                 )
             ''')
             
