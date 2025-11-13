@@ -10,9 +10,9 @@ class FormService:
         await FormService.db.initialize()
     
     @classmethod
-    async def create_form(cls, name: str, tasks: List[int], addition: str) -> dict:
+    async def create_form(cls, name: str, tasks: List[int]) -> dict:
         _tasks = Form.get_tasks_string(tasks)
-        return await FormService.db.add('forms', name=name, tasks=_tasks, addition=addition)
+        return await FormService.db.add('forms', name=name, tasks=_tasks)
     
     @classmethod
     async def get_all_forms(cls) -> List[Form]:

@@ -32,9 +32,8 @@ class Database:
             await conn.execute('''
                 CREATE TABLE IF NOT EXISTS forms (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT UNIQUE NOT NULL,
-                    tasks TEXT NOT NULL,
-                    addition TEXT
+                    part_name TEXT UNIQUE,
+                    tasks TEXT NOT NULL
                 )
             ''')
 
@@ -52,6 +51,7 @@ class Database:
                     form_id INTEGER NOT NULL,
                     grades TEXT NOT NULL,
                     errors_ids TEXT,
+                    addition TEXT,
                     reviewer_id INTEGER NOT NULL,
                     checked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (form_id) REFERENCES forms(id) ON DELETE CASCADE,

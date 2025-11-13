@@ -6,12 +6,10 @@ class Form:
     def __init__(self, 
                  name: str = "",
                  tasks: List[int] = None,
-                 addition: str = None,
                  id: int = None):
         self.id = id
         self.name = name
         self.tasks = tasks
-        self.addition = addition
 
     @staticmethod
     def get_tasks_string(tasks : List[int]) -> str:
@@ -32,6 +30,5 @@ class Form:
             id=data.get('id'),
             name=data.get('name', ''),
             tasks=tasks, 
-            addition=data.get('addition')
         )
             

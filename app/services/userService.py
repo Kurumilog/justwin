@@ -128,3 +128,7 @@ class UserService:
             (user_id, name)
         )
         return result > 0
+    
+    @classmethod
+    async def set_user_available_status(cls, user_id: str, available_status: bool) -> int:
+        return await UserService.db.update("users", user_id, available=available_status)
