@@ -174,15 +174,6 @@ def get_form_task_selection_keyboard(
         
         builder.row(*pagination_buttons)
     
-    # Информация о выбранных задачах
-    selected_count = len(selected_task_ids)
-    builder.row(
-        InlineKeyboardButton(
-            text=f"✅ Выбрано задач: {selected_count}",
-            callback_data="selected_info"
-        )
-    )
-    
     # Кнопки управления
     builder.row(
         InlineKeyboardButton(text="💾 Сохранить", callback_data=f"form_tasks_save_{form_id}"),
