@@ -130,5 +130,13 @@ class UserService:
         return result > 0
     
     @classmethod
-    async def set_user_available_status(cls, user_id: str, available_status: bool) -> int:
+    async def update_user_available_status(cls, user_id: str, available_status: bool) -> int:
         return await UserService.db.update("users", user_id, available=available_status)
+    
+    @classmethod
+    async def update_user_part_name(cls, user_id: str, part_name: str) -> int:
+        result = await UserService.db.execute(
+            "UPDATE users SET part_name = ? WHERE id = ?",
+            (part_name, user_id)
+        )
+        return result > 0
