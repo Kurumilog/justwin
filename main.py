@@ -29,7 +29,7 @@ async def main():
     await CheckService.initialize()
     await ErrorService.initialize()
     
-    bot = Bot(token="7957057862:AAG7Dcqzd5YNivVm3emjnndJmMcsJdG5omI")
+    bot = Bot(token="")
     dp = Dispatcher(storage=MemoryStorage())
     
     # Register handlers
